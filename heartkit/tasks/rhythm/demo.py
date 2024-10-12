@@ -67,6 +67,7 @@ def demo(params: HKTaskParams):
         runner.perform_inference()
         yy = runner.get_outputs()
         y_prob = np.exp(yy) / np.sum(np.exp(yy), axis=-1, keepdims=True)
+        logger.debug(", ".join(f"{name}: {prob:2.0%}" for name, prob in zip(class_names, y_prob)))
         y_pred = np.argmax(y_prob, axis=-1)
         y_prob = y_prob[y_pred]
         if y_prob < params.threshold:
@@ -137,6 +138,7 @@ def demo(params: HKTaskParams):
     )
     fig.write_html(params.job_dir / "demo.html", include_plotlyjs="cdn", full_html=False)
     logger.debug(f"Report saved to {params.job_dir / 'demo.html'}")
+    if params.display_report: fig.show()
 
     # Matplotlib version
 
@@ -157,9 +159,6 @@ def demo(params: HKTaskParams):
     ax.legend(loc="upper right", bbox_to_anchor=(1, 1), frameon=False)
     fig.tight_layout()
     fig.savefig(params.job_dir / "demo.png")
-
-    if params.display_report:
-        fig.show()
 
     # cleanup
     keras.utils.clear_session()
